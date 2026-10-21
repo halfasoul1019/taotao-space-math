@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070D24">
+  <meta name="description" content="淘淘飞船：14 天太空动画课，给 5 岁小朋友的凑十法、破十法，带通关检查、家长报告和星际打卡。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="淘淘飞船">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>淘淘飞船 · 14 天太空课</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230A1230'/%3E%3Cpath d='M32 7c8 8 11 17 11 25v13H21V32c0-8 3-17 11-25z' fill='%23FFF6E4'/%3E%3Cpath d='M32 7c5 5 8 10 10 16H22c2-6 5-11 10-16z' fill='%23FF7A59'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%2355E0FF'/%3E%3Cpath d='M21 36 12 47l9-1zM43 36l9 11-9-1z' fill='%23FFC94D'/%3E%3C/svg%3E">
+  <script>
+    (() => {
+      const forced = new URLSearchParams(location.search).get("theme");
+      const light = forced ? forced === "light" : matchMedia("(prefers-color-scheme: light)").matches;
+      document.documentElement.dataset.theme = light ? "light" : "dark";
+      document.documentElement.style.colorScheme = light ? "light" : "dark";
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=22">
+  <link rel="stylesheet" href="theme-space.css?v=22">
+</head>
+<body>
+  <div class="space-scene" aria-hidden="true">
+    <div class="nebula nebula-a"></div>
+    <div class="nebula nebula-b"></div>
+    <div class="nebula nebula-c"></div>
+    <div id="starfield" class="starfield"></div>
+    <div class="planet planet-main"><span class="planet-ring"></span></div>
+    <div class="planet planet-moon"></div>
+    <div class="shooting-star shoot-a"></div>
+    <div class="shooting-star shoot-b"></div>
+  </div>
+  <div id="app"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="modal-root"></div>
+  <script src="app.js?v=22"></script>
+</body>
+</html>

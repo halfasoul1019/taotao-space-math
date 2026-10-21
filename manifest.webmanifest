@@ -1,0 +1,47 @@
+{
+  "name": "淘淘飞船 · 14 天太空课",
+  "short_name": "淘淘飞船",
+  "description": "给 5 岁小朋友的凑十法 / 破十法太空动画课，14 个学习日，周末休息。",
+  "lang": "zh-CN",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#070D24",
+  "theme_color": "#070D24",
+  "categories": ["education", "kids"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "14 天航线",
+      "short_name": "航线",
+      "url": "./#/course"
+    },
+    {
+      "name": "家长报告",
+      "short_name": "报告",
+      "url": "./#/report"
+    }
+  ]
+}
