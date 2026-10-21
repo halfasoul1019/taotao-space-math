@@ -1,11 +1,11 @@
-﻿const VERSION = "v22";
+﻿const VERSION = "v25";
 const CACHE = `taotao-space-${VERSION}`;
 const CORE = [
   "./",
   "./index.html",
-  "./styles.css?v=22",
-  "./theme-space.css?v=22",
-  "./app.js?v=22",
+  "./styles.css?v=25",
+  "./theme-space.css?v=25",
+  "./app.js?v=25",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

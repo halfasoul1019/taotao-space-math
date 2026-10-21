@@ -1,4 +1,4 @@
-# 淘淘飞船 · 14 天太空课 v2.5
+# 淘淘飞船 · 14 天太空课 v2.8
 
 给 5 岁小朋友做的「凑十法 / 破十法」太空动画课。**颜色跟随系统浅色 / 深色自动切换**，iPad 横屏优先，孩子自己打卡。
 
@@ -13,6 +13,7 @@
 - 凑十课：把补给舱的星星拖进小车，一颗一颗装满 10 格。
 - 破十课：把要减掉的星星拖进黑洞，一颗一颗拿走。
 - 拖够数量之前「继续航行」是灰的；拖够后出现「继续」，底部算式变成绿色。
+- 第 3 页孩子自己按数字键填答案，填对才出现「完成关卡」或「下一题」。
 - 拖动、放下、完成时都有震动反馈；iPhone Safari 不支持系统震动，会自动改成画面轻弹。
 - 家长报告、错题返航、打卡、深浅色都保留。
 - 已支持 **PWA**：添加到 iPad / 手机主屏幕、离线打开。
@@ -104,10 +105,10 @@
 
 ## 声音
 
-- 共 **299 段预录音频**：两关讲解、星球动画课、自由练习、完成反馈。
+- 共 **302 段预录音频**：两关讲解、星球动画课、自由练习、完成反馈。
 - 使用 Xiaoyi 年轻女声的原本音高，语速放慢，台词口语化。
 - 用同音字「能亮」校正「量」的声调，听起来仍是 **能量星（néng liàng xīng）**；画面保留「能量星」。
-- 音频、JS、CSS 使用 `v=22` 版本号，避免旧缓存。
+- 音频、JS、CSS 使用 `v=25` 版本号，避免旧缓存。
 - 浏览器可能拦截第一步自动播放；点「再听一遍」即可。
 
 ## 动画和音效
@@ -141,9 +142,9 @@
 
 带示例数据（12 天打卡、4 课完成、错题本 1 题）：
 
-- [跟随系统预览](http://127.0.0.1:4173/?demo=1&v=22)
-- [空白版](http://127.0.0.1:4173/?v=22)
-- [深色](http://127.0.0.1:4173/?demo=1&theme=dark&v=22)
+- [跟随系统预览](http://127.0.0.1:4173/?demo=1&v=25)
+- [空白版](http://127.0.0.1:4173/?v=25)
+- [深色](http://127.0.0.1:4173/?demo=1&theme=dark&v=25)
 
 ## UI 预览
 
@@ -160,6 +161,8 @@
 | 星星桥 | [light-lesson-bridge.png](preview/light-lesson-bridge.png) | — |
 | 破十拖一拖 | [light-break-drag.png](preview/light-break-drag.png) | — |
 | 拖动成功 | [light-drag-success.png](preview/light-drag-success.png) | — |
+| 自己填答案 | [light-answer-input.png](preview/light-answer-input.png) | — |
+| 填对答案 | [light-answer-correct.png](preview/light-answer-correct.png) | — |
 | 本课通过 | [light-lesson-complete.png](preview/light-lesson-complete.png) | — |
 | 家长报告 | [light-report.png](preview/light-report.png) | — |
 | 自由练习 | [light-practice.png](preview/light-practice.png) | [dark-practice.png](preview/dark-practice.png) |
@@ -183,7 +186,7 @@ math-magic/
 ├─ manifest.webmanifest
 ├─ sw.js               # 离线缓存
 ├─ icons/              # 192 / 512 / 180 图标
-├─ audio/              # 299 段预录童声
+├─ audio/              # 302 段预录童声
 ├─ DEPLOY.md           # iPad HTTPS 真离线部署
 ├─ README.md
 └─ preview/

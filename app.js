@@ -82,7 +82,7 @@ let bootLessonStep = params.has("step")
 const state = loadState();
 let currentRoute = null;
 let calendarCursor = { year: TODAY.getFullYear(), month: TODAY.getMonth() };
-let lessonState = { kind: "make-ten", step: 0, index: 0, questions: [], courseId: null, stepSolved: false, stepWrong: [], dragged: 0 };
+let lessonState = { kind: "make-ten", step: 0, index: 0, questions: [], courseId: null, stepSolved: false, stepWrong: [], dragged: 0, answerInput: "", answerSolved: false };
 let practiceState = {
   index: 0,
   correct: 0,
@@ -113,7 +113,7 @@ let speechVoices = [];
 let narrationAudio = null;
 let lastBorrowSfxKey = "";
 let traveling = false;
-const AUDIO_VERSION = "22";
+const AUDIO_VERSION = "25";
 
 function loadState() {
   try {
@@ -1259,6 +1259,8 @@ function resetStepTask() {
   lessonState.stepSolved = false;
   lessonState.stepWrong = [];
   lessonState.dragged = 0;
+  lessonState.answerInput = "";
+  lessonState.answerSolved = false;
 }
 
 function dragStepFor(config) {
@@ -1280,11 +1282,41 @@ function dragPromptFor(config) {
     : "把要拿走的星星拖进黑洞";
 }
 
+function renderAnswerTask(config) {
+  if (lessonState.step !== 2) return "";
+  const solved = lessonState.answerSolved;
+  const input = lessonState.answerInput || "";
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+    .map((key) => `<button class="answer-key" data-action="answer-key" data-key="${key}">${key}</button>`)
+    .join("");
+  return `<div class="answer-task ${solved ? "is-solved" : ""}">
+    <div class="answer-task-top">
+      <span class="answer-task-kicker">${solved ? "答对啦" : "自己填答案"}</span>
+      <button class="step-task-voice" data-action="answer-voice" aria-label="听题目">${icon("volume")} 听</button>
+    </div>
+    <div class="answer-line">
+      <span>${config.a} ${config.op} ${config.b} =</span>
+      <strong class="${solved ? "is-correct" : ""}">${solved ? config.result : input || "?"}</strong>
+    </div>
+    <div class="answer-keys">${keys}</div>
+    <div class="answer-actions">
+      <button class="answer-back" data-action="answer-back" aria-label="删除一位">⌫</button>
+      <button class="answer-submit" data-action="answer-submit">填好了</button>
+    </div>
+    <div class="answer-feedback">${
+      solved ? "算对啦，继续下一题。" : lessonState.stepWrong.length ? "再算一算，答案不对。" : "一个一个点，把答案填进去。"
+    }</div>
+  </div>`;
+}
+
 function stepSpeechFor(config) {
   if (lessonState.step === 0 && !lessonState.stepSolved) {
     return config.kind === "make-ten"
       ? "把补给舱的星星拖进空位，一颗一颗装满 10 格。"
       : "把要拿走的星星，一颗一颗拖进黑洞。";
+  }
+  if (lessonState.step === 2 && !lessonState.answerSolved) {
+    return "算一算，一共多少？把答案填进去。";
   }
   return config.steps[pageStageStep(config)].speech;
 }
@@ -1380,13 +1412,18 @@ function renderLesson(kind) {
   const isLast = lessonState.index === total - 1;
   const nextLabel = final ? (isLast ? "完成关卡" : "下一题") : "继续航行";
   const nextAction = final ? (isLast ? "complete-level" : "next-question") : "next-step";
-  const stepLocked = step === 0 && !lessonState.stepSolved;
+  const answerLocked = final && !lessonState.answerSolved;
+  const stepLocked = (step === 0 && !lessonState.stepSolved) || answerLocked;
   const displayHint =
     step === 0 && !lessonState.stepSolved
       ? config.kind === "make-ten"
         ? "把补给舱的星星拖进空位，装满 10 格。"
         : "把要拿走的星星拖进黑洞。"
-      : data.hint;
+      : final && !lessonState.answerSolved
+        ? "算一算，把答案填进去。"
+        : data.hint;
+  const displayFormula =
+    final && !lessonState.answerSolved ? data.formula.replace(/=\s*\d+\s*$/, "= ?") : data.formula;
 
   const stage =
     config.kind === "make-ten" ? renderMakeStage(stageStep, config) : renderBreakStage(stageStep, config);
@@ -1405,7 +1442,7 @@ function renderLesson(kind) {
       return `
         <li class="mini-step ${itemClass}">
           <span class="num">${i + 1}</span>
-          <span>${item.short}</span>
+          <span>${i === 2 ? "填答案" : item.short}</span>
         </li>`;
     })
     .join("");
@@ -1427,22 +1464,23 @@ function renderLesson(kind) {
     </div>
 
     <div class="lesson-grid">
-      <section class="stage-card ${config.theme} ${config.scene ? `scene-${config.scene}` : ""}"
+      <section class="stage-card ${config.theme} ${config.scene ? `scene-${config.scene}` : ""} ${final && !lessonState.answerSolved ? "answer-pending" : ""}"
         style="--scene:${config.color || "#55e0ff"}" aria-label="${config.method}动画演示">
-        ${final ? `<div class="mission-complete">${icon("star")} ${isLast ? "任务完成" : "本题完成"}</div>` : ""}
+        ${final && lessonState.answerSolved ? `<div class="mission-complete">${icon("star")} ${isLast ? "任务完成" : "本题完成"}</div>` : ""}
         <div class="equation-row">
           <span class="eq-num a ${config.a > 9 ? "wide" : ""}">${config.a}</span>
           <span class="eq-op">${config.op}</span>
           <span class="eq-num b">${config.b}</span>
           <span class="eq-op eq-equals">=</span>
-          <span class="eq-num result ${final ? "is-revealed" : "is-unknown"}">${final ? config.result : "?"}</span>
+          <span class="eq-num result ${final && lessonState.answerSolved ? "is-revealed" : "is-unknown"}">${final && lessonState.answerSolved ? config.result : "?"}</span>
         </div>
 
         ${stage}
 
-        <div class="formula-strip ${step === 0 && lessonState.stepSolved ? "is-success" : ""}" aria-label="当前算式">${formulaMarkup(data.formula)}</div>
+        <div class="formula-strip ${step === 0 && lessonState.stepSolved ? "is-success" : ""}" aria-label="当前算式">${formulaMarkup(displayFormula)}</div>
 
         ${renderDragTask(step, config)}
+        ${renderAnswerTask(config)}
 
         <div class="stage-hint">
           <span class="bulb">${icon("lightbulb")}</span>
@@ -1476,7 +1514,7 @@ function renderLesson(kind) {
         <div class="coach-actions">
           <button class="btn ${config.kind === "break-ten" ? "btn-mint" : "btn-coral"} btn-wide"
             data-action="${stepLocked ? "step-locked" : nextAction}" ${stepLocked ? "disabled" : ""}>
-            ${stepLocked ? "先把星星拖到位" : nextLabel} ${icon(stepLocked ? "lightbulb" : nextAction === "complete-level" ? "star" : nextAction === "finish" ? "calendar" : "arrowRight")}
+            ${stepLocked ? (answerLocked ? "先填答案" : "先把星星拖到位") : nextLabel} ${icon(stepLocked ? "lightbulb" : nextAction === "complete-level" ? "star" : nextAction === "finish" ? "calendar" : "arrowRight")}
           </button>
           <div class="coach-subactions">
             <button class="link-action" data-action="prev-step" ${step === 0 ? "disabled" : ""}>
@@ -2966,7 +3004,12 @@ function plainText(html) {
 function currentStepAudio() {
   const config = currentLessonConfig();
   if (!config) return "";
-  if (lessonState.step === 0 && !lessonState.stepSolved) return "";
+  if (lessonState.step === 0 && !lessonState.stepSolved) {
+    return `audio/drag-${config.kind === "make-ten" ? "make" : "break"}.mp3?v=${AUDIO_VERSION}`;
+  }
+  if (lessonState.step === 2 && !lessonState.answerSolved) {
+    return `audio/answer-prompt.mp3?v=${AUDIO_VERSION}`;
+  }
   const stage = pageStageStep(config);
   if (config.courseId) return `audio/lesson-${config.courseId}-${lessonState.index + 1}-${stage}.mp3?v=${AUDIO_VERSION}`;
   const prefix = config.kind === "make-ten" ? "make" : "break";
@@ -3164,7 +3207,43 @@ document.addEventListener("click", (event) => {
     toast("把星星拖到正确的位置，再继续。");
   } else if (action === "task-voice") {
     const config = currentLessonConfig();
-    speak(dragPromptFor(config));
+    playStepNarration(config);
+  } else if (action === "answer-voice") {
+    const config = currentLessonConfig();
+    playStepNarration(config);
+  } else if (action === "answer-key") {
+    if (lessonState.answerSolved) return;
+    const key = actionTarget.dataset.key;
+    if (lessonState.answerInput.length >= 2) return;
+    lessonState.answerInput += key;
+    sfx("tap");
+    render();
+  } else if (action === "answer-back") {
+    if (lessonState.answerSolved) return;
+    lessonState.answerInput = lessonState.answerInput.slice(0, -1);
+    sfx("tap");
+    render();
+  } else if (action === "answer-submit") {
+    if (lessonState.answerSolved) return;
+    const config = currentLessonConfig();
+    if (!lessonState.answerInput) {
+      toast("先填一个答案。");
+      return;
+    }
+    if (Number(lessonState.answerInput) === config.result) {
+      lessonState.answerSolved = true;
+      lessonState.stepSolved = true;
+      haptic([14, 30, 18]);
+      sfx("win");
+      window.setTimeout(() => sfx("sparkle"), 120);
+      render();
+    } else {
+      lessonState.stepWrong.push(lessonState.answerInput);
+      haptic([8, 24, 8]);
+      sfx("pop");
+      playNarration(`audio/practice-wrong.mp3?v=${AUDIO_VERSION}`, "再算一算，答案不对。");
+      render();
+    }
   } else if (action === "prev-step") {
     if (lessonState.step > 0) {
       lessonState.step -= 1;
@@ -3177,6 +3256,10 @@ document.addEventListener("click", (event) => {
   } else if (action === "next-question") {
     nextQuestion();
   } else if (action === "complete-level") {
+    if (lessonState.step === 2 && !lessonState.answerSolved) {
+      toast("先把答案填对，再完成关卡。");
+      return;
+    }
     openLevelCompleteModal();
   } else if (action === "pass-answer") {
     const value = Number(actionTarget.dataset.value);
